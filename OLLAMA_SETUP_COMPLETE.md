@@ -95,3 +95,4 @@ ollama run llama3.1:8b "Hello, how are you?"
 
 Your Llama 3.1 integration is ready to use. The chat interface will now use AI-generated responses instead of rule-based ones.
 
+

@@ -93,3 +93,4 @@ If you're still seeing 401 errors:
    - Verify JWT_SECRET is set in backend/.env
    - Check backend logs for authentication errors
 
+

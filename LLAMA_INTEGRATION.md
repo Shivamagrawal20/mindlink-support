@@ -189,3 +189,4 @@ For detailed setup instructions, see:
 **Providers**: Ollama, Replicate, Hugging Face  
 **Fallback**: Rule-based responses (always available)
 
+
