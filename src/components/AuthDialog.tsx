@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,12 +36,17 @@ const AuthDialog = ({ open, onOpenChange, onSuccess }: AuthDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Welcome to MindLink AI</DialogTitle>
-          <DialogDescription>
-            Sign in to access empathetic AI support and community features
-          </DialogDescription>
-        </DialogHeader>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Welcome to MindLink AI</DialogTitle>
+            <DialogDescription>
+              Sign in to access empathetic AI support and community features
+            </DialogDescription>
+          </DialogHeader>
 
         <Tabs defaultValue="login" className="mt-4">
           <TabsList className="grid w-full grid-cols-2">
@@ -133,6 +139,7 @@ const AuthDialog = ({ open, onOpenChange, onSuccess }: AuthDialogProps) => {
         <div className="text-center text-sm text-muted-foreground mt-4">
           Your privacy is protected. All conversations are confidential.
         </div>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
