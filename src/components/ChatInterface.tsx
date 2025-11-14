@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -129,7 +130,12 @@ const ChatInterface = ({ onBack }: ChatInterfaceProps) => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="bg-card border-b border-border px-4 py-4 shadow-soft">
+      <motion.header
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="bg-card border-b border-border px-4 py-4 shadow-soft"
+      >
         <div className="container mx-auto max-w-4xl flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={onBack}>
@@ -140,7 +146,12 @@ const ChatInterface = ({ onBack }: ChatInterfaceProps) => {
               <p className="text-sm text-muted-foreground">Always here to listen</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, type: "spring" }}
+            className="flex items-center gap-3"
+          >
             <div className="text-sm text-muted-foreground">Current mood:</div>
             <div className="flex items-center gap-2">
               {getMoodIcon(currentMood)}
@@ -151,37 +162,47 @@ const ChatInterface = ({ onBack }: ChatInterfaceProps) => {
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="container mx-auto max-w-4xl space-y-6">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
-            >
-              <Card
-                className={`max-w-[80%] px-6 py-4 ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card text-card-foreground border border-border"
-                }`}
+          <AnimatePresence initial={false}>
+            {messages.map((message) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <p className="leading-relaxed">{message.content}</p>
-                {message.sentiment !== undefined && message.role === "user" && (
-                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-primary-foreground/20">
-                    {getMoodIcon(message.sentiment)}
-                    <span className="text-xs opacity-80">Mood detected</span>
-                  </div>
-                )}
-              </Card>
-            </div>
-          ))}
+                <Card
+                  className={`max-w-[80%] px-6 py-4 ${
+                    message.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-card text-card-foreground border border-border"
+                  }`}
+                >
+                  <p className="leading-relaxed">{message.content}</p>
+                  {message.sentiment !== undefined && message.role === "user" && (
+                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-primary-foreground/20">
+                      {getMoodIcon(message.sentiment)}
+                      <span className="text-xs opacity-80">Mood detected</span>
+                    </div>
+                  )}
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
           {isTyping && (
-            <div className="flex justify-start animate-fade-in">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-start"
+            >
               <Card className="bg-card text-card-foreground border border-border px-6 py-4">
                 <div className="flex gap-2">
                   <div className="w-2 h-2 bg-muted-foreground rounded-full animate-breathe" />
@@ -195,7 +216,7 @@ const ChatInterface = ({ onBack }: ChatInterfaceProps) => {
                   />
                 </div>
               </Card>
-            </div>
+            </motion.div>
           )}
           <div ref={messagesEndRef} />
         </div>
