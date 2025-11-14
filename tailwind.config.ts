@@ -39,6 +39,19 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        support: {
+          DEFAULT: "hsl(var(--support))",
+          foreground: "hsl(var(--support-foreground))",
+        },
+        calm: {
+          DEFAULT: "hsl(var(--calm))",
+          foreground: "hsl(var(--calm-foreground))",
+        },
+        mood: {
+          positive: "hsl(var(--mood-positive))",
+          neutral: "hsl(var(--mood-neutral))",
+          negative: "hsl(var(--mood-negative))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -46,16 +59,6 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
-        },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
         },
       },
       borderRadius: {
