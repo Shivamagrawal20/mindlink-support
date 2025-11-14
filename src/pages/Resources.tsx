@@ -11,21 +11,27 @@ const Resources = () => {
 
   const crisisLines = [
     {
-      name: "National Suicide Prevention Lifeline",
-      number: "988",
-      description: "24/7 free and confidential support",
+      name: "Vandrevala Foundation Helpline",
+      number: "1860 2662 345 / 1800 2333 330",
+      description: "24/7 free and confidential mental health support",
       type: "Crisis"
     },
     {
-      name: "Crisis Text Line",
-      number: "Text HOME to 741741",
-      description: "Text-based crisis support",
+      name: "iCall (TISS) Helpline",
+      number: "022-25521111",
+      description: "Monday to Saturday, 8 AM to 10 PM - Professional counseling",
+      type: "Support"
+    },
+    {
+      name: "AASRA Suicide Prevention",
+      number: "91-9820466726 / 022 2754 6669",
+      description: "24/7 crisis intervention and emotional support",
       type: "Crisis"
     },
     {
-      name: "SAMHSA National Helpline",
-      number: "1-800-662-4357",
-      description: "Treatment referral and information",
+      name: "National Mental Health Helpline",
+      number: "1800-599-0019",
+      description: "Government helpline for mental health support",
       type: "Support"
     }
   ];
@@ -34,19 +40,19 @@ const Resources = () => {
     {
       icon: Video,
       title: "Guided Meditations",
-      description: "Calming meditation sessions for anxiety and stress relief",
+      description: "Calming meditation sessions inspired by Indian practices like Yoga and Mindfulness",
       link: "#"
     },
     {
       icon: BookOpen,
       title: "Self-Help Articles",
-      description: "Evidence-based strategies for mental wellness",
+      description: "Evidence-based strategies for mental wellness tailored for Indian context",
       link: "#"
     },
     {
       icon: Heart,
       title: "Breathing Exercises",
-      description: "Quick techniques to reduce stress and anxiety",
+      description: "Pranayama and quick techniques to reduce stress and anxiety",
       link: "#"
     }
   ];
@@ -105,7 +111,7 @@ const Resources = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-muted-foreground text-lg"
           >
-            Access helpful resources and emergency support
+            Access helpful resources and emergency support in India
           </motion.p>
         </motion.div>
 
@@ -123,7 +129,7 @@ const Resources = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {crisisLines.map((line, index) => (
               <motion.div
                 key={index}
