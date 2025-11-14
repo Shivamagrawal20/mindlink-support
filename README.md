@@ -1,73 +1,111 @@
-# Welcome to your Lovable project
+# MindLink AI - Mental Wellness Support Platform
 
-## Project info
+MindLink AI is an AI-powered mental wellness support platform that connects users with empathetic AI chat, real-time voice support circles, and comprehensive community resources for mental health support.
 
-**URL**: https://lovable.dev/projects/8f2b4739-d80c-40ff-ad3f-f97d3b14d7c7
+## Features
 
-## How can I edit this code?
+- 🤖 **AI-Powered Chat**: Compassionate AI companion for mental wellness support
+- 🎙️ **Voice Support Circles**: Real-time voice rooms for community connection
+- 📊 **Mood Tracking**: Daily mood check-ins with trend analysis
+- 📅 **Community Events**: Join or create wellness events and workshops
+- 📚 **Resources**: Access mental health resources and crisis support
+- 🔒 **Privacy-Focused**: Anonymous mode and secure, encrypted communication
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8f2b4739-d80c-40ff-ad3f-f97d3b14d7c7) and start prompting.
+- Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the project directory
+cd mindlink-support
 
-# Step 3: Install the necessary dependencies.
+# Step 3: Install the necessary dependencies
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Technology Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+This project is built with modern web technologies:
 
-**Use GitHub Codespaces**
+- **Vite** - Fast build tool and development server
+- **TypeScript** - Type-safe JavaScript
+- **React** - UI library
+- **shadcn-ui** - High-quality component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Agora** - Real-time voice communication
+- **MongoDB** - Database for user data and conversations
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Development
 
-## What technologies are used for this project?
+### Frontend Development
 
-This project is built with:
+```sh
+npm run dev
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Runs the app in development mode at `http://localhost:8080`
 
-## How can I deploy this project?
+### Backend Development
 
-Simply open [Lovable](https://lovable.dev/projects/8f2b4739-d80c-40ff-ad3f-f97d3b14d7c7) and click on Share -> Publish.
+```sh
+cd backend
+npm install
+npm run dev
+```
 
-## Can I connect a custom domain to my Lovable project?
+Runs the backend server at `http://localhost:3001`
 
-Yes, you can!
+### Building for Production
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```sh
+npm run build
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+The built files will be in the `dist` directory, ready for deployment.
+
+## Deployment
+
+This project can be deployed to any hosting platform that supports Node.js applications:
+
+- **Vercel**: Connect your GitHub repo for automatic deployments
+- **Netlify**: Deploy with continuous integration
+- **Heroku**: Traditional hosting platform
+- **AWS/Google Cloud/Azure**: Cloud hosting options
+
+## Project Structure
+
+```
+mindlink-support/
+├── src/              # Frontend React application
+│   ├── components/   # React components
+│   ├── pages/        # Page components
+│   ├── lib/          # Utilities and API clients
+│   └── contexts/     # React contexts
+├── backend/          # Node.js/Express backend
+│   ├── routes/       # API routes
+│   ├── models/       # Database models
+│   └── utils/        # Backend utilities
+└── public/           # Static assets
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is private and proprietary.
+
+## Support
+
+For support, please contact the MindLink AI team or open an issue in the repository.

@@ -1,60 +1,195 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Brain, MessageCircle, Users, Shield, ArrowRight, Calendar, Heart, UserCircle } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Brain, MessageCircle, Users, Shield, ArrowRight, Calendar, Heart, UserCircle, Mic, TrendingUp, Sparkles, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthDialog from "@/components/AuthDialog";
 import ChatInterface from "@/components/ChatInterface";
+import VoiceAIChat from "@/components/VoiceAIChat";
+import DailyCheckIn from "@/components/DailyCheckIn";
+import Footer from "@/components/Footer";
+import NavBar from "@/components/NavBar";
+import { useUser } from "@/contexts/UserContext";
+import { useDailyCheckIn } from "@/hooks/useDailyCheckIn";
+import { canCreateEvents, canCreateSupportCircles, canAccessAdminPanel, canModerate } from "@/lib/roles";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useUser();
+  const { needsCheckIn, isLoading: checkInLoading, refresh: refreshCheckIn } = useDailyCheckIn();
   const [showAuth, setShowAuth] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showVoiceChat, setShowVoiceChat] = useState(false);
+  const [showDailyCheckIn, setShowDailyCheckIn] = useState(false);
+  const [checkInDismissed, setCheckInDismissed] = useState(false);
+  const [hasShownCheckInThisSession, setHasShownCheckInThisSession] = useState(false);
 
-  const handleAuthSuccess = () => {
+  // Only automatically show check-in on fresh login (not on navigation)
+  // Track if we've shown it this session to prevent re-showing on navigation
+  useEffect(() => {
+    // Don't auto-show if:
+    // - Already shown this session
+    // - User dismissed it
+    // - Already visible
+    // - Chat is open
+    // - Still loading
+    if (hasShownCheckInThisSession || checkInDismissed || showDailyCheckIn || showChat || checkInLoading) {
+      return;
+    }
+
+    if (isAuthenticated && needsCheckIn) {
+      // Check if this is a fresh login (within last 10 seconds)
+      const lastLogin = localStorage.getItem('mindlink_last_login');
+      const now = Date.now();
+      
+      // Only auto-show if:
+      // 1. Just logged in (within last 10 seconds) - fresh session
+      // 2. Or user needs check-in and hasn't seen it this session
+      if (lastLogin && (now - parseInt(lastLogin)) < 10 * 1000) {
+        // Fresh login - show check-in
+        setShowDailyCheckIn(true);
+        setHasShownCheckInThisSession(true);
+      }
+      // Otherwise, user is navigating - don't auto-show (only show on manual click)
+    }
+  }, [isAuthenticated, needsCheckIn, checkInLoading, showDailyCheckIn, showChat, checkInDismissed, hasShownCheckInThisSession]);
+
+  // Reset session flag when user logs out or check-in status changes
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setHasShownCheckInThisSession(false);
+      setCheckInDismissed(false);
+    }
+  }, [isAuthenticated]);
+
+  // Only store login time once on initial authentication (not on every render)
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const existingLogin = localStorage.getItem('mindlink_last_login');
+      // Only set if not already set (to avoid updating on every navigation)
+      if (!existingLogin) {
+        localStorage.setItem('mindlink_last_login', Date.now().toString());
+      }
+    }
+  }, [isAuthenticated, user]);
+
+  const handleAuthSuccess = async (method?: "email" | "google" | "anonymous") => {
     setShowAuth(false);
-    setIsAuthenticated(true);
-    setShowChat(true);
+    // Reset session flags on fresh login
+    setHasShownCheckInThisSession(false);
+    setCheckInDismissed(false);
+    
+    // Store login time for session detection
+    localStorage.setItem('mindlink_last_login', Date.now().toString());
+    
+    // The useEffect will handle showing check-in if needed (only on fresh login)
+    // If check-in not needed, show chat
+    if (!needsCheckIn) {
+      setShowChat(true);
+    }
+    // If check-in needed, useEffect will show it automatically
   };
 
+  const handleCheckInComplete = () => {
+    setShowDailyCheckIn(false);
+    setCheckInDismissed(false); // Reset dismiss flag after completion
+    setHasShownCheckInThisSession(true); // Mark as shown so it doesn't reappear
+    
+    // Refresh check-in status after a delay to ensure backend updated
+    setTimeout(() => {
+      refreshCheckIn();
+      // Navigate to chat after completion (only if not already there)
+      if (!showChat) {
+        setShowChat(true);
+      }
+    }, 1000);
+  };
+
+  const handleManualCheckIn = () => {
+    // User manually clicked check-in button
+    setShowDailyCheckIn(true);
+    setCheckInDismissed(false);
+  };
+
+  const handleDismissCheckIn = () => {
+    // User manually dismissed check-in (via skip button)
+    setShowDailyCheckIn(false);
+    setCheckInDismissed(true);
+    setHasShownCheckInThisSession(true); // Don't show again this session
+  };
+
+  // Show loading state while checking check-in status
+  if (isAuthenticated && checkInLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-calm to-background flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full mx-auto mb-4"
+          />
+          <p className="text-muted-foreground">Loading...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (showDailyCheckIn && isAuthenticated) {
+    return (
+      <DailyCheckIn 
+        onComplete={handleCheckInComplete}
+        onDismiss={handleDismissCheckIn}
+        fullscreen={true}
+        showSkip={true}
+      />
+    );
+  }
+
+  if (showVoiceChat && isAuthenticated) {
+    // Get mood context from sessionStorage if available
+    let moodContext = undefined;
+    try {
+      const contextStr = sessionStorage.getItem('mindlink_mood_context');
+      if (contextStr) {
+        moodContext = JSON.parse(contextStr);
+        // Clear it after use (one-time use)
+        sessionStorage.removeItem('mindlink_mood_context');
+      }
+    } catch (e) {
+      console.error('Error parsing mood context:', e);
+    }
+    
+    return <VoiceAIChat onBack={() => setShowVoiceChat(false)} moodContext={moodContext} />;
+  }
+
   if (showChat && isAuthenticated) {
-    return <ChatInterface onBack={() => setShowChat(false)} />;
+    // Get mood context from sessionStorage if available
+    let moodContext = undefined;
+    try {
+      const contextStr = sessionStorage.getItem('mindlink_mood_context');
+      if (contextStr) {
+        moodContext = JSON.parse(contextStr);
+        // Clear it after use (one-time use)
+        sessionStorage.removeItem('mindlink_mood_context');
+      }
+    } catch (e) {
+      console.error('Error parsing mood context:', e);
+    }
+    
+    return <ChatInterface onBack={() => setShowChat(false)} moodContext={moodContext} onVoiceMode={() => {
+      setShowChat(false);
+      setShowVoiceChat(true);
+    }} />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-calm to-background">
-      {/* Header */}
-      <motion.header
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-background/80 border-b border-border"
-      >
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Brain className="w-7 h-7 text-primary" />
-            <span className="text-xl font-semibold text-foreground">MindLink AI</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <button onClick={() => navigate("/rooms")} className="text-muted-foreground hover:text-foreground transition-colors">
-              Voice Rooms
-            </button>
-            <button onClick={() => navigate("/events")} className="text-muted-foreground hover:text-foreground transition-colors">
-              Events
-            </button>
-            <button onClick={() => navigate("/resources")} className="text-muted-foreground hover:text-foreground transition-colors">
-              Resources
-            </button>
-            <button onClick={() => navigate("/profile")} className="text-muted-foreground hover:text-foreground transition-colors">
-              Profile
-            </button>
-          </nav>
-          <Button variant="default" onClick={() => setShowAuth(true)}>
-            Get Started
-          </Button>
-        </div>
-      </motion.header>
+    <div className="min-h-screen bg-gradient-to-br from-background via-calm to-background flex flex-col">
+      <NavBar onAuthClick={() => setShowAuth(true)} />
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4">
@@ -65,6 +200,14 @@ const Index = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center"
           >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+              className="mb-8"
+            >
+              <Brain className="w-20 h-20 text-primary mx-auto animate-pulse" />
+            </motion.div>
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -128,14 +271,107 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Quick Access Section */}
+      {isAuthenticated && user && (
+        <section className="py-12 px-4 bg-card/30">
+          <div className="container mx-auto max-w-6xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-8"
+            >
+              <h2 className="text-3xl font-bold text-foreground mb-2">How would you like to connect?</h2>
+              <p className="text-muted-foreground">Choose your preferred way to get support</p>
+            </motion.div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <motion.div
+                whileHover={{ scale: 1.05, y: -4 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Card
+                  className="p-6 cursor-pointer border-2 hover:border-primary/50 transition-all h-full"
+                  onClick={() => setShowChat(true)}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <MessageCircle className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">Talk to MindLink</h3>
+                  <p className="text-sm text-muted-foreground">Text chat with empathetic AI support</p>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05, y: -4 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Card
+                  className="p-6 cursor-pointer border-2 hover:border-primary/50 transition-all h-full"
+                  onClick={() => navigate("/rooms")}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Mic className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">Join Support Circle</h3>
+                  <p className="text-sm text-muted-foreground">Real-time voice rooms with others</p>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05, y: -4 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Card
+                  className="p-6 cursor-pointer border-2 hover:border-primary/50 transition-all h-full"
+                  onClick={handleManualCheckIn}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <TrendingUp className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">Daily Mood Check-in</h3>
+                  <p className="text-sm text-muted-foreground">Track your wellness journey</p>
+                </Card>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05, y: -4 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Card
+                  className="p-6 cursor-pointer border-2 hover:border-primary/50 transition-all h-full"
+                  onClick={() => navigate("/events")}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Calendar className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">Discover Events</h3>
+                  <p className="text-sm text-muted-foreground">Community events and meetups</p>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Features Section */}
       <section className="py-20 px-4 bg-card/50">
         <div className="container mx-auto max-w-6xl">
           <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-foreground mb-4">How We Help</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Comprehensive support tools designed for your mental wellness journey
+            </p>
+          </motion.div>
+          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.8, staggerChildren: 0.1 }}
             className="grid md:grid-cols-4 gap-8"
           >
             <FeatureCard
@@ -205,6 +441,8 @@ const Index = () => {
         onOpenChange={setShowAuth}
         onSuccess={handleAuthSuccess}
       />
+      
+      <Footer />
     </div>
   );
 };
@@ -224,14 +462,18 @@ const FeatureCard = ({ icon, title, description, delay = "0s", onClick }: Featur
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: parseFloat(delay), duration: 0.6 }}
-      whileHover={{ y: -5, scale: 1.02 }}
-      className="bg-card rounded-2xl p-8 shadow-soft hover:shadow-medium transition-all border border-border cursor-pointer"
+      whileHover={{ y: -8, scale: 1.03, rotate: 1 }}
+      className="bg-card rounded-2xl p-8 shadow-soft hover:shadow-large transition-all border border-border cursor-pointer group"
       onClick={onClick}
     >
-      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+      <motion.div
+        whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+        transition={{ duration: 0.5 }}
+        className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary/20 transition-colors"
+      >
         {icon}
-      </div>
-      <h3 className="text-xl font-semibold text-foreground mb-3">{title}</h3>
+      </motion.div>
+      <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">{title}</h3>
       <p className="text-muted-foreground leading-relaxed">{description}</p>
     </motion.div>
   );

@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Phone, Video, BookOpen, Heart, ArrowLeft, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Footer from "@/components/Footer";
+import NavBar from "@/components/NavBar";
 
 const Resources = () => {
   const navigate = useNavigate();
@@ -67,11 +69,12 @@ const Resources = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-calm to-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-calm to-background flex flex-col">
+      <NavBar />
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="container mx-auto px-4 py-8"
+        className="container mx-auto px-4 py-8 pt-24"
       >
         <Button
           variant="ghost"
@@ -82,10 +85,29 @@ const Resources = () => {
           Back to Home
         </Button>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Support Resources</h1>
-          <p className="text-muted-foreground">Access helpful resources and emergency support</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-8"
+        >
+          <motion.h1
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold text-foreground mb-2"
+          >
+            Support Resources
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="text-muted-foreground text-lg"
+          >
+            Access helpful resources and emergency support
+          </motion.p>
+        </motion.div>
 
         {/* Crisis Support */}
         <motion.div
@@ -105,11 +127,12 @@ const Resources = () => {
             {crisisLines.map((line, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 + index * 0.1 }}
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1, type: "spring" }}
+                whileHover={{ scale: 1.05, y: -4 }}
               >
-                <Card className="p-6 bg-card hover:shadow-large transition-all h-full">
+                <Card className="p-6 bg-card hover:shadow-large transition-all h-full border-2 hover:border-destructive/50">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <Phone className="w-6 h-6 text-primary" />
@@ -134,14 +157,23 @@ const Resources = () => {
           <h2 className="text-3xl font-bold text-foreground mb-6">Self-Help Tools</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {resources.map((resource, index) => (
-              <motion.div key={index} variants={itemVariants}>
-                <Card className="p-6 hover:shadow-large transition-all h-full">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                whileHover={{ scale: 1.03, y: -4, rotate: 1 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Card className="p-6 hover:shadow-large transition-all h-full border-2 hover:border-primary/50 group">
+                  <motion.div
+                    whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                    className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors"
+                  >
                     <resource.icon className="w-8 h-8 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-3">{resource.title}</h3>
+                  </motion.div>
+                  <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors">{resource.title}</h3>
                   <p className="text-muted-foreground mb-4">{resource.description}</p>
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button variant="outline" className="w-full gap-2">
                       Explore
                       <ExternalLink className="w-4 h-4" />
@@ -153,6 +185,8 @@ const Resources = () => {
           </div>
         </motion.div>
       </motion.div>
+      
+      <Footer />
     </div>
   );
 };
