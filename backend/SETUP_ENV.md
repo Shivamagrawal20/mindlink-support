@@ -47,16 +47,18 @@ Get these from https://console.agora.io/ when ready.
 
 ### 4. Llama Configuration (For AI Chat)
 
-If you've installed Ollama (recommended), add:
+Configure your Llama provider. Options: `replicate` or `huggingface`
 
+**For Replicate:**
 ```env
-LLAMA_PROVIDER=ollama
-OLLAMA_URL=http://localhost:11434
+LLAMA_PROVIDER=replicate
+REPLICATE_API_TOKEN=your-replicate-api-token-here
 ```
 
-**Note:** Ollama should be running. If you installed it via Homebrew, it should auto-start. Verify with:
-```bash
-ollama list
+**For Hugging Face:**
+```env
+LLAMA_PROVIDER=huggingface
+HUGGINGFACE_API_TOKEN=your-huggingface-api-token-here
 ```
 
 ### 5. Frontend URL (Already correct)

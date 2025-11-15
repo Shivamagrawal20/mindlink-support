@@ -4,10 +4,9 @@ This guide explains how to configure Llama 3.1 (8B & 405B) models for chat answe
 
 ## Overview
 
-MindLink supports three ways to use Llama 3.1 models:
-1. **Ollama** (Recommended for local development) - Free, runs models locally
-2. **Replicate** - Cloud-based, pay-per-use
-3. **Hugging Face Inference API** - Cloud-based, pay-per-use
+MindLink supports two ways to use Llama 3.1 models:
+1. **Replicate** - Cloud-based, pay-per-use
+2. **Hugging Face Inference API** - Cloud-based, pay-per-use
 
 ## Option 1: Meta Llama CLI (Official Method)
 
@@ -77,57 +76,15 @@ Use Meta's official Llama CLI to download models directly from Meta.
    If the CLI doesn't work, you can also download models directly from:
    - Meta's official model repository
    - Hugging Face (requires access request)
-   - Then use with Ollama or other inference engines
+   - Then use with cloud inference engines
 
 ### Environment Configuration
 
-After downloading models, you can use them with Ollama or other inference engines. See Option 2 below for Ollama setup.
+After downloading models, you can use them with cloud inference engines. See Option 2 below for Replicate setup.
 
 ---
 
-## Option 2: Ollama (Recommended for Local Development - EASIEST METHOD)
-
-**If you're having issues with Meta CLI, we highly recommend using Ollama instead. It's simpler and works out of the box.**
-
-Ollama is the easiest way to run Llama models locally on your machine.
-
-### Installation
-
-1. **Install Ollama:**
-   - macOS: Download from https://ollama.ai/download
-   - Linux: `curl -fsSL https://ollama.ai/install.sh | sh`
-   - Windows: Download from https://ollama.ai/download
-
-2. **Pull Llama 3.1 models:**
-   ```bash
-   # For 8B model (recommended for most systems)
-   ollama pull llama3.1:8b
-   
-   # For 405B model (requires significant RAM/VRAM)
-   ollama pull llama3.1:405b
-   ```
-
-3. **Start Ollama server:**
-   ```bash
-   ollama serve
-   ```
-   The server runs on `http://localhost:11434` by default.
-
-### Environment Configuration
-
-Add to your `.env` file:
-```env
-LLAMA_PROVIDER=ollama
-OLLAMA_URL=http://localhost:11434
-```
-
-### Model Selection
-
-The 8B model is recommended for most use cases:
-- **8B**: Faster, uses ~8GB RAM, good for most conversations
-- **405B**: Slower, requires significant resources, better quality for complex conversations
-
-## Option 3: Replicate API
+## Option 2: Replicate API
 
 Replicate provides cloud-based access to Llama models.
 
@@ -147,7 +104,7 @@ Replicate provides cloud-based access to Llama models.
 - 8B model: ~$0.0001 per request
 - 405B model: ~$0.01 per request (varies)
 
-## Option 4: Hugging Face Inference API
+## Option 3: Hugging Face Inference API
 
 Hugging Face provides access to Llama models via their Inference API.
 
@@ -176,10 +133,7 @@ Add these to your `backend/.env` file:
 
 ```env
 # Llama Configuration
-LLAMA_PROVIDER=ollama  # Options: ollama, replicate, huggingface
-
-# Ollama (if using Ollama)
-OLLAMA_URL=http://localhost:11434
+LLAMA_PROVIDER=replicate  # Options: replicate, huggingface
 
 # Replicate (if using Replicate)
 REPLICATE_API_TOKEN=your-token-here
@@ -231,25 +185,10 @@ POST /api/chat/message
    ```
 
 3. **Check the response:**
-   - If successful, you'll see a response with `"model": "8b (ollama)"` (or your provider)
+   - If successful, you'll see a response with `"model": "8b (replicate)"` (or your provider)
    - If Llama fails, it falls back to rule-based responses
 
 ## Troubleshooting
-
-### Ollama Issues
-
-**"Ollama server is not running"**
-- Make sure Ollama is installed and running: `ollama serve`
-- Check if the server is accessible: `curl http://localhost:11434/api/tags`
-
-**"Model not found"**
-- Pull the model: `ollama pull llama3.1:8b`
-- Verify models: `ollama list`
-
-**Slow responses**
-- 8B model is faster than 405B
-- Ensure you have enough RAM/VRAM
-- Consider using cloud providers for better performance
 
 ### Replicate Issues
 
@@ -265,7 +204,7 @@ POST /api/chat/message
 
 **"Rate limit exceeded"**
 - Free tier has rate limits
-- Consider upgrading or using Ollama for development
+- Consider upgrading to a paid plan for higher usage
 
 ## Fallback Behavior
 
@@ -273,14 +212,14 @@ If Llama models fail for any reason, the system automatically falls back to the 
 
 ## Performance Tips
 
-1. **For development:** Use Ollama with 8B model
+1. **For development:** Use Replicate with 8B model
 2. **For production:** Consider Replicate or Hugging Face for better reliability
 3. **For complex conversations:** Use 405B model when available
 4. **For speed:** Use 8B model (sufficient for most use cases)
 
 ## Next Steps
 
-1. Choose your provider (Ollama recommended for local dev)
+1. Choose your provider (Replicate or Hugging Face)
 2. Set up the environment variables
 3. Test with a simple message
 4. Adjust model size based on your needs

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Brain, MessageCircle, Users, Shield, ArrowRight, Calendar, Heart, UserCircle, Mic, TrendingUp, Sparkles, Settings } from "lucide-react";
+import { MessageCircle, Users, Shield, ArrowRight, Calendar, Heart, UserCircle, Mic, TrendingUp, Sparkles, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthDialog from "@/components/AuthDialog";
 import ChatInterface from "@/components/ChatInterface";
@@ -200,14 +200,6 @@ const Index = () => {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center"
           >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-              className="mb-8"
-            >
-              <Brain className="w-20 h-20 text-primary mx-auto animate-pulse" />
-            </motion.div>
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}

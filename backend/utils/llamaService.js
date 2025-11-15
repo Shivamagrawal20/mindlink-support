@@ -1,16 +1,14 @@
 /**
  * Llama 3.1 Model Service
- * Supports both 8B and 405B models via Ollama, Replicate, or Hugging Face
+ * Supports both 8B and 405B models via Replicate or Hugging Face
  */
 
 const LLAMA_MODELS = {
   '8b': {
-    ollama: 'llama3.1:8b',
     replicate: 'meta/meta-llama-3.1-8b-instruct',
     huggingface: 'meta-llama/Meta-Llama-3.1-8B-Instruct',
   },
   '405b': {
-    ollama: 'llama3.1:405b',
     replicate: 'meta/meta-llama-3.1-405b-instruct',
     huggingface: 'meta-llama/Meta-Llama-3.1-405B-Instruct',
   },
@@ -25,7 +23,7 @@ const LLAMA_MODELS = {
  * @param {string} params.moodTrend - Mood trend (improving, declining, stable)
  * @param {string} params.todayReflection - User's mood reflection
  * @param {string} params.modelSize - Model size: '8b' or '405b' (default: '8b')
- * @param {string} params.provider - Provider: 'ollama', 'replicate', or 'huggingface' (default: 'ollama')
+ * @param {string} params.provider - Provider: 'replicate' or 'huggingface' (default: 'replicate')
  * @returns {Promise<{message: string, model: string}>}
  */
 export async function generateLlamaResponse({
@@ -35,7 +33,7 @@ export async function generateLlamaResponse({
   moodTrend = 'stable',
   todayReflection = '',
   modelSize = '8b',
-  provider = process.env.LLAMA_PROVIDER || 'ollama',
+  provider = process.env.LLAMA_PROVIDER || 'replicate',
 }) {
   try {
     // Validate model size
@@ -58,9 +56,6 @@ export async function generateLlamaResponse({
     // Generate response based on provider
     let response;
     switch (provider.toLowerCase()) {
-      case 'ollama':
-        response = await generateWithOllama(modelConfig.ollama, messages);
-        break;
       case 'replicate':
         response = await generateWithReplicate(modelConfig.replicate, messages);
         break;
@@ -68,7 +63,7 @@ export async function generateLlamaResponse({
         response = await generateWithHuggingFace(modelConfig.huggingface, messages);
         break;
       default:
-        throw new Error(`Unsupported provider: ${provider}. Use 'ollama', 'replicate', or 'huggingface'`);
+        throw new Error(`Unsupported provider: ${provider}. Use 'replicate' or 'huggingface'`);
     }
 
     return {
@@ -153,45 +148,6 @@ function buildConversationMessages(systemPrompt, conversationHistory, userMessag
   });
 
   return messages;
-}
-
-/**
- * Generate response using Ollama (local inference)
- */
-async function generateWithOllama(model, messages) {
-  const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
-  
-  try {
-    const response = await fetch(`${ollamaUrl}/api/chat`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        stream: false,
-        options: {
-          temperature: 0.7,
-          top_p: 0.9,
-          top_k: 40,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Ollama API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data.message?.content || data.response || '';
-  } catch (error) {
-    if (error.message?.includes('ECONNREFUSED') || error.message?.includes('fetch failed')) {
-      throw new Error('Ollama server is not running. Please start Ollama or use a different provider.');
-    }
-    throw error;
-  }
 }
 
 /**
@@ -362,5 +318,6 @@ export default {
   generateLlamaResponse,
   LLAMA_MODELS,
 };
+
 
 

@@ -177,9 +177,28 @@ const VoiceAIChat = ({ onBack, moodContext }: VoiceAIChatProps) => {
       console.log("✅ Joined AI voice chat channel with UID:", actualUid);
 
       // Create and publish local audio track (user's microphone)
+      // Use higher quality encoder config and enable audio processing
       const localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack({
-        encoderConfig: "speech_standard",
+        encoderConfig: {
+          sampleRate: 48000,
+          stereo: false,
+          bitrate: 48, // Higher bitrate for better quality
+        },
+        // Enable audio processing for better input levels
+        AEC: true, // Acoustic Echo Cancellation
+        ANS: true, // Automatic Noise Suppression
+        AGC: true, // Automatic Gain Control
+        // Audio constraints for better input
+        microphoneId: undefined, // Use default microphone
       });
+      
+      // Set volume/gain to ensure adequate input level
+      try {
+        await localAudioTrack.setVolume(100); // Set to maximum volume
+      } catch (e) {
+        console.warn("Could not set audio track volume:", e);
+      }
+      
       localAudioTrackRef.current = localAudioTrack;
       await client.publish([localAudioTrack]);
       
